@@ -1,0 +1,107 @@
+# Rails（API）＋ Nuxt（画面）開発環境（Gold LINK DX）
+# 使い方は README.md を参照。普段は .\dev.ps1 up / down で操作する。
+#
+#   web   … Nuxt の画面（公開ページ・管理画面。/api は api に転送） http://localhost:3500
+#   api   … Rails（API 専用）                                      http://localhost:3400
+#   sync  … api フォルダと、コンテナ内の速い領域を双方向にそろえる
+#   db    … PostgreSQL 17（開発用 app_development・テスト用 app_test） localhost:5439
+#
+# ポートはすべて 127.0.0.1 に限定（同じネットワークの他の PC からは見えない）
+
+name: gldx-railsnuxt
+
+services:
+  # Windows のフォルダをコンテナから直接読むと遅い（ファイル1つに数ミリ秒）。
+  # Rails には速い領域（api-src ボリューム）を読ませ、api フォルダとは 2 秒おきに双方向でそろえる。
+  # 詳しくは docker/sync/sync-app.sh。Nuxt 側は、同期にしても速くならないので直接つないでいる。
+  sync:
+    build:
+      context: ./docker/sync
+    volumes:
+      - ./api:/host
+      - api-src:/app
+      - sync-state:/state
+    healthcheck:
+      test: ["CMD", "test", "-f", "/state/ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 60
+
+  api:
+    build:
+      context: ./docker/ruby
+      args:
+        RUBY_VERSION: ${RUBY_VERSION:-4.0}
+    working_dir: /app
+    command: ["sh", "-c", "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0 -p 3000"]
+    ports:
+      - "127.0.0.1:${API_PORT:-3400}:3000"
+    volumes:
+      - api-src:/app
+      # gem はコンテナ側に置く
+      - bundle:/usr/local/bundle
+    environment:
+      # 接続先は config/database.yml がこの3つを読む（テスト環境は DATABASE_URL を読まないため）
+      DB_HOST: db
+      DB_USER: ${DB_USER:-app}
+      DB_PASSWORD: ${DB_PASSWORD:-app}
+      # 管理用 API の合言葉（ローカル開発専用の値。本番では長いランダムな文字列にする）
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-dev-admin-token}
+    tty: true
+    stdin_open: true
+    depends_on:
+      db:
+        condition: service_healthy
+      sync:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./docker/node
+      args:
+        NODE_VERSION: ${NODE_VERSION:-24}
+    working_dir: /web
+    command: ["pnpm", "dev"]
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3500}:3000"
+    volumes:
+      - ./web:/web
+      # node_modules と Nuxt のビルド結果はコンテナ側に置く（Windows のフォルダに置くと遅いため）
+      - web-node-modules:/web/node_modules
+      - web-nuxt:/web/.nuxt
+      - pnpm-store:/pnpm/store
+    environment:
+      # Nuxt のサーバーから見た Rails の場所（ブラウザからは直接呼ばない）
+      NUXT_API_BASE: http://api:3000
+      TZ: Asia/Tokyo
+      NUXT_TELEMETRY_DISABLED: "1"
+      # Windows のフォルダは変更の通知が届かないので、定期的に見に行く
+      CHOKIDAR_USEPOLLING: "true"
+    depends_on:
+      - api
+
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:${DB_PORT:-5439}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-app}
+      POSTGRES_DB: postgres
+      TZ: Asia/Tokyo
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  api-src:
+  sync-state:
+  bundle:
+  web-node-modules:
+  web-nuxt:
+  pnpm-store:
+  db-data:

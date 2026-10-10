@@ -1,0 +1,17 @@
+{
+  // VS Code の「コンテナーで再度開く」で「API」を選ぶと、Rails のコンテナの中で編集・実行できる。
+  // gem も見えるので、補完や定義へのジャンプが効く。編集した内容は、2 秒ほどで api フォルダにも反映される
+  "name": "GLDX Rails + Nuxt（API）",
+  "dockerComposeFile": ["../../compose.yaml"],
+  "service": "api",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Shopify.ruby-lsp",
+        "EditorConfig.EditorConfig"
+      ]
+    }
+  }
+}

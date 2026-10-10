@@ -1,0 +1,24 @@
+{
+  // VS Code の「コンテナーで再度開く」で「画面」を選ぶと、Nuxt のコンテナの中で編集・実行できる
+  "name": "GLDX Rails + Nuxt（画面）",
+  "dockerComposeFile": ["../../compose.yaml"],
+  "service": "web",
+  "workspaceFolder": "/web",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Vue.volar",
+        "Nuxtr.nuxtr-vscode",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "vitest.explorer",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+# 項目名と、このアプリだけのエラーメッセージ（一般的な訳は rails-i18n が持っている）
+ja:
+  activerecord:
+    models:
+      article: 記事
+    attributes:
+      article:
+        title: タイトル
+        slug: URL 用の名前
+        summary: 要約
+        body: 本文
+        status: 状態
+        published_at: 公開日時
+    errors:
+      models:
+        article:
+          attributes:
+            slug:
+              invalid_slug: は半角の英小文字・数字・ハイフンで入力してください（例：autumn-campaign）

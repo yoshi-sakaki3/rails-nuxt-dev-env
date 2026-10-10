@@ -1,0 +1,29 @@
+# テスト用の記事（公開中 2・予約 1・下書き 1）
+older:
+  title: 古いお知らせ
+  slug: older-news
+  summary: 古いお知らせの要約
+  body: 古いお知らせの本文
+  status: published
+  published_at: <%= 5.days.ago.to_fs(:db) %>
+
+newer:
+  title: 新しいお知らせ
+  slug: newer-news
+  summary: 新しいお知らせの要約
+  body: 新しいお知らせの本文
+  status: published
+  published_at: <%= 1.day.ago.to_fs(:db) %>
+
+scheduled:
+  title: 予約公開のお知らせ
+  slug: scheduled-news
+  body: まだ公開日時が来ていない
+  status: published
+  published_at: <%= 3.days.from_now.to_fs(:db) %>
+
+draft:
+  title: 下書きのお知らせ
+  slug: draft-news
+  body: 書きかけ
+  status: draft

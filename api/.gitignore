@@ -1,0 +1,19 @@
+# Rails の雛形と同じ内容（rails new --skip-git で作ったので、手で置いている）
+/.bundle
+
+# 秘密の鍵と環境変数は Git に入れない
+/.env*
+/config/*.key
+
+# ログ・一時ファイル
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+/storage/*
+/vendor/bundle
+/coverage
