@@ -43,6 +43,8 @@ Ruby 単体のスクリプトも実行できます。Windows（PowerShell）向�
    gem と npm パッケージの取得・DB の作成・見本の記事（8件）の投入まで自動で行います（初回は 5 分ほど）。
    終わってから 1 分ほど（Nuxt の最初の起動）待って、http://localhost:3500 を開いてください。
 
+> `api/config/master.key`（Rails の秘密鍵）は公開しない設定です。取り出した直後は無いので、本番の秘密情報を使うときは `.\dev.ps1 rails credentials:edit` で作り直してください（開発だけなら不要）。
+
 > PowerShell で「スクリプトの実行が無効」と出たら：`powershell -ExecutionPolicy Bypass -File .\dev.ps1 setup`
 
 ## 普段の使い方
